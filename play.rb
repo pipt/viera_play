@@ -5,8 +5,6 @@ require "socket"
 require "net/http"
 require "uri"
 
-PORT = 8888
-
 FORMATS = {
   ["mkv", "mp4", "wmv", "avi", "mov"] => "video/x-msvideo",
   ["mp3"] => "audio/mpeg"
