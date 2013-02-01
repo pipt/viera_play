@@ -14,33 +14,63 @@ FORMATS = {
 
 TV_CONTROL_URL = "http://192.168.0.16:55000/dmr/control_2"
 
-def local_ip
-  UDPSocket.open do |s|
-    s.connect '8.8.8.8', 1
-    s.addr.last
-  end
-end
-
-url_to_play = "http://#{local_ip}:#{PORT}/"
-
-mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
-FORMATS.each do |file_types, mime_type|
-  file_types.each do |file_type|
-    mime_types.store file_type, mime_type
-  end
-end
-
-class FileServlet < WEBrick::HTTPServlet::DefaultFileHandler
-  # Serves the given file_path no matter what is asked for
-  def initialize(server, file_path)
-    super(server, "/tmp")
-    @local_path = file_path
-  end
-end
-
 file_path = ARGV.first
-server = WEBrick::HTTPServer.new(:Port => PORT, :MimeTypes => mime_types)
-server.mount("/", FileServlet, file_path)
+
+class SingleFileServer
+  def initialize(file_path, additional_mime_types)
+    @file_path = file_path
+    @additional_mime_types = additional_mime_types
+  end
+
+  def start
+    server.mount("/", FileServlet, file_path)
+    server.start
+  end
+
+  def shutdown
+    server.shutdown
+  end
+
+  def url
+    "http://#{local_ip}:#{port}/"
+  end
+
+private
+  attr_reader :file_path, :additional_mime_types
+
+  def mime_types
+    mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
+    FORMATS.each do |file_types, mime_type|
+      file_types.each do |file_type|
+        mime_types.store file_type, mime_type
+      end
+    end
+    mime_types
+  end
+
+  def server
+    @server ||= WEBrick::HTTPServer.new(:Port => port, :MimeTypes => mime_types)
+  end
+
+  def port
+    8888
+  end
+
+  def local_ip
+    @local_ip ||= UDPSocket.open do |s|
+      s.connect '8.8.8.8', 1
+      s.addr.last
+    end
+  end
+
+  class FileServlet < WEBrick::HTTPServlet::DefaultFileHandler
+    # Serves the given file_path no matter what is asked for
+    def initialize(server, file_path)
+      super(server, "/tmp")
+      @local_path = file_path
+    end
+  end
+end
 
 class TV
   def initialize(control_url)
@@ -111,6 +141,8 @@ end
 
 tv = TV.new(TV_CONTROL_URL)
 
+server = SingleFileServer.new(ARGV.first, FORMATS)
+
 trap 'INT' do
   tv.stop
   server.shutdown
@@ -121,7 +153,7 @@ http_server_thread = Thread.new do
 end
 
 tv.stop
-tv.set_media_uri(url_to_play)
+tv.set_media_uri(server.url)
 tv.play
 
 http_server_thread.join
