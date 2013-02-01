@@ -72,10 +72,10 @@ private
 end
 
 class Soapy
-  def initialize(args={})
-    @endpoint = URI.parse(args.fetch(:endpoint))
-    @namespace = args.fetch(:namespace)
-    @default_request_args = args.fetch(:default_request_args, {})
+  def initialize(opts={})
+    @endpoint = URI.parse(opts.fetch(:endpoint))
+    @namespace = opts.fetch(:namespace)
+    @default_request_args = opts.fetch(:default_request_args, {})
   end
 
   def send_command(command, args={})
