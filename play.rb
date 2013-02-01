@@ -157,10 +157,7 @@ private
   end
 
   def play_and_wait
-    http_server_thread = Thread.new do
-      server.start
-    end
-
+    http_server_thread = Thread.new { server.start }
     tv.play_uri(server.url)
     http_server_thread.join
   end
