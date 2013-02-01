@@ -46,19 +46,50 @@ class TV
   end
 
   def stop
-    `curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#Stop"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Stop xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:Stop></s:Body></s:Envelope>' #{control_url}`
+    post(
+      control_url,
+      {
+        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Stop"',
+        "Content-type" => "text/xml"
+      },
+      '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Stop xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:Stop></s:Body></s:Envelope>'
+    )
   end
 
   def play
-    `curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#Play"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>' #{control_url}`
+    post(
+      control_url,
+      {
+        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Play"',
+        "Content-type" => "text/xml"
+      },
+      '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>'
+    )
   end
 
   def set_media_uri(uri)
-    `curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">  <s:Body>    <u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">      <InstanceID>0</InstanceID>      <CurrentURI>#{uri}</CurrentURI>      <CurrentURIMetaData></CurrentURIMetaData>    </u:SetAVTransportURI>  </s:Body></s:Envelope>' #{control_url}`
+    post(
+      control_url,
+      {
+        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"',
+        "Content-type" => "text/xml"
+      },
+      %Q{<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">  <s:Body>    <u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">      <InstanceID>0</InstanceID>      <CurrentURI>#{uri}</CurrentURI>      <CurrentURIMetaData></CurrentURIMetaData>    </u:SetAVTransportURI>  </s:Body></s:Envelope>}
+    )
   end
 
 private
   attr_reader :control_url
+
+  def post(url, headers, data)
+    args = headers.map { |key, value| ["-H", "'#{key}: #{value}'"] }.flatten
+    args << "-X"
+    args << "POST"
+    args << "-d"
+    args << "'#{data}'"
+    args << url
+    system("curl " + args.join(" "))
+  end
 end
 
 tv = TV.new(TV_CONTROL_URL)
