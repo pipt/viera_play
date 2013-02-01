@@ -46,6 +46,10 @@ def play
   `curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#Play"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>' 192.168.0.16:55000/dmr/control_2`
 end
 
+def set_media_uri(uri)
+  `curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">  <s:Body>    <u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">      <InstanceID>0</InstanceID>      <CurrentURI>#{uri}</CurrentURI>      <CurrentURIMetaData></CurrentURIMetaData>    </u:SetAVTransportURI>  </s:Body></s:Envelope>' 192.168.0.16:55000/dmr/control_2`
+end
+
 trap 'INT' do
   stop
   server.shutdown
@@ -56,7 +60,7 @@ pid = Process.fork do
 end
 
 stop
-`curl -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"' -X POST -H 'Content-type: text/xml' -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">  <s:Body>    <u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">      <InstanceID>0</InstanceID>      <CurrentURI>#{url_to_play}</CurrentURI>      <CurrentURIMetaData></CurrentURIMetaData>    </u:SetAVTransportURI>  </s:Body></s:Envelope>' 192.168.0.16:55000/dmr/control_2`
+set_media_uri(url_to_play)
 play
 
 Process.wait(pid)
