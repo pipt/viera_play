@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 require "webrick"
 require "socket"
 
