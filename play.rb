@@ -46,58 +46,37 @@ class TV
   end
 
   def stop
-    post(
-      control_url,
-      {
-        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Stop"',
-        "Content-type" => "text/xml"
-      },
-      soap_body(
-        "Stop",
-        {
-          "InstanceID" => "0"
-        }
-      )
-    )
+    send_command("Stop")
   end
 
   def play
-    post(
-      control_url,
-      {
-        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Play"',
-        "Content-type" => "text/xml"
-      },
-      soap_body(
-        "Play",
-        {
-          "InstanceID" => "0",
-          "Speed" => "1"
-        }
-      )
-    )
+    send_command("Play", { "Speed" => "1" })
   end
 
   def set_media_uri(uri)
-    post(
-      control_url,
+    send_command(
+      "SetAVTransportURI",
       {
-        "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"',
-        "Content-type" => "text/xml"
-      },
-      soap_body(
-        "SetAVTransportURI",
-        {
-          "InstanceID" => "0",
-          "CurrentURI" => uri,
-          "CurrentURIMetaData" => ""
-        }
-      )
+        "CurrentURI" => uri,
+        "CurrentURIMetaData" => ""
+      }
     )
   end
 
 private
   attr_reader :control_url
+
+  def send_command(command, args={})
+    default_args = {"InstanceID" => "0"}
+    post(
+      control_url,
+      {
+        "SOAPACTION" => %Q{"urn:schemas-upnp-org:service:AVTransport:1##{command}"},
+        "Content-type" => "text/xml"
+      },
+      soap_body(command, default_args.merge(args))
+    )
+  end
 
   def post(url, headers, data)
     args = headers.map { |key, value| ["-H", "'#{key}: #{value}'"] }.flatten
