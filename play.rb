@@ -32,7 +32,7 @@ class FileServlet < WEBrick::HTTPServlet::DefaultFileHandler
   end
 end
 
-file_path = File.expand_path("./#{ARGV.first}")
+file_path = ARGV.first
 server = WEBrick::HTTPServer.new(:Port => PORT, :MimeTypes => mime_types)
 server.mount("/", FileServlet, file_path)
 
