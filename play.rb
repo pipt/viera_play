@@ -87,12 +87,18 @@ class TV
     send_command("Play", "Speed" => "1")
   end
 
-  def set_media_uri(uri)
-    send_command("SetAVTransportURI", "CurrentURI" => uri)
+  def play_uri(uri)
+    stop
+    set_media_uri(uri)
+    play
   end
 
 private
   attr_reader :soap_client
+
+  def set_media_uri(uri)
+    send_command("SetAVTransportURI", "CurrentURI" => uri)
+  end
 
   def send_command(command, args={})
     soap_client.send_command(command, args)
@@ -150,8 +156,6 @@ http_server_thread = Thread.new do
   server.start
 end
 
-tv.stop
-tv.set_media_uri(server.url)
-tv.play
+tv.play_uri(server.url)
 
 http_server_thread.join
