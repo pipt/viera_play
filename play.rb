@@ -2,6 +2,8 @@
 
 require "webrick"
 require "socket"
+require "net/http"
+require "uri"
 
 PORT = 8888
 
@@ -79,13 +81,8 @@ private
   end
 
   def post(url, headers, data)
-    args = headers.map { |key, value| ["-H", "'#{key}: #{value}'"] }.flatten
-    args << "-X"
-    args << "POST"
-    args << "-d"
-    args << "'#{data}'"
-    args << url
-    system("curl " + args.join(" "))
+    uri = URI.parse(url)
+    Net::HTTP.new(uri.host, uri.port).post(uri.path, data, headers)
   end
 
   def soap_body(command, args)
