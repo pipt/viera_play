@@ -12,7 +12,6 @@ class SingleFileServer
   end
 
   def start
-    server.mount("/", FileServlet, file_path)
     server.start
   end
 
@@ -43,7 +42,11 @@ private
   end
 
   def server
-    @server ||= WEBrick::HTTPServer.new(:Port => port, :MimeTypes => mime_types)
+    @server ||= WEBrick::HTTPServer.new(
+      :Port => port,
+      :MimeTypes => mime_types,
+      :DocumentRoot => file_path
+    )
   end
 
   def port
@@ -54,14 +57,6 @@ private
     @local_ip ||= UDPSocket.open do |s|
       s.connect '8.8.8.8', 1
       s.addr.last
-    end
-  end
-
-  class FileServlet < WEBrick::HTTPServlet::DefaultFileHandler
-    # Serves the given file_path no matter what is asked for
-    def initialize(server, file_path)
-      super(server, "/tmp")
-      @local_path = file_path
     end
   end
 end
