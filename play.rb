@@ -116,7 +116,7 @@ trap 'INT' do
   server.shutdown
 end
 
-pid = Process.fork do
+http_server_thread = Thread.new do
   server.start
 end
 
@@ -124,4 +124,4 @@ tv.stop
 tv.set_media_uri(url_to_play)
 tv.play
 
-Process.wait(pid)
+http_server_thread.join
