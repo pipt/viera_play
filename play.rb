@@ -52,7 +52,7 @@ class TV
   end
 
   def play
-    send_command("Play", { "Speed" => "1" })
+    send_command("Play", "Speed" => "1")
   end
 
   def set_media_uri(uri)
