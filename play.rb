@@ -44,7 +44,11 @@ server.mount("/", FileServlet, file_path)
 
 class TV
   def initialize(control_url)
-    @control_url = control_url
+    @soap_client = Soapy.new(
+      :endpoint => control_url,
+      :namespace => "urn:schemas-upnp-org:service:AVTransport:1",
+      :default_request_args => {"InstanceID" => "0"}
+    )
   end
 
   def stop
@@ -60,23 +64,35 @@ class TV
   end
 
 private
-  attr_reader :control_url
+  attr_reader :soap_client
 
   def send_command(command, args={})
-    default_args = {"InstanceID" => "0"}
+    soap_client.send_command(command, args)
+  end
+end
+
+class Soapy
+  def initialize(args={})
+    @endpoint = URI.parse(args.fetch(:endpoint))
+    @namespace = args.fetch(:namespace)
+    @default_request_args = args.fetch(:default_request_args, {})
+  end
+
+  def send_command(command, args={})
     post(
-      control_url,
       {
-        "SOAPACTION" => %Q{"urn:schemas-upnp-org:service:AVTransport:1##{command}"},
+        "SOAPACTION" => %Q{"#{namespace}##{command}"},
         "Content-type" => "text/xml"
       },
-      soap_body(command, default_args.merge(args))
+      soap_body(command, default_request_args.merge(args))
     )
   end
 
-  def post(url, headers, data)
-    uri = URI.parse(url)
-    Net::HTTP.new(uri.host, uri.port).post(uri.path, data, headers)
+private
+  attr_reader :endpoint, :namespace, :default_request_args
+
+  def post(headers, data)
+    Net::HTTP.new(endpoint.host, endpoint.port).post(endpoint.path, data, headers)
   end
 
   def soap_body(command, args)
@@ -85,7 +101,7 @@ private
       <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
         s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
         <s:Body>
-          <u:#{command} xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">
+          <u:#{command} xmlns:u="#{namespace}">
             #{xml_args}
           </u:#{command}>
         </s:Body>
