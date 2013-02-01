@@ -5,11 +5,6 @@ require "socket"
 require "net/http"
 require "uri"
 
-FORMATS = {
-  ["mkv", "mp4", "wmv", "avi", "mov"] => "video/x-msvideo",
-  ["mp3"] => "audio/mpeg"
-}
-
 TV_CONTROL_URL = "http://192.168.0.16:55000/dmr/control_2"
 
 file_path = ARGV.first
@@ -17,7 +12,7 @@ file_path = ARGV.first
 class SingleFileServer
   def initialize(file_path, additional_mime_types)
     @file_path = file_path
-    @additional_mime_types = additional_mime_types
+    @additional_mime_types = FORMATS.merge(additional_mime_types)
   end
 
   def start
@@ -36,9 +31,14 @@ class SingleFileServer
 private
   attr_reader :file_path, :additional_mime_types
 
+  FORMATS = {
+    ["mkv", "mp4", "wmv", "avi", "mov"] => "video/x-msvideo",
+    ["mp3"] => "audio/mpeg"
+  }
+
   def mime_types
     mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
-    FORMATS.each do |file_types, mime_type|
+    additional_mime_types.each do |file_types, mime_type|
       file_types.each do |file_type|
         mime_types.store file_type, mime_type
       end
