@@ -56,13 +56,7 @@ class TV
   end
 
   def set_media_uri(uri)
-    send_command(
-      "SetAVTransportURI",
-      {
-        "CurrentURI" => uri,
-        "CurrentURIMetaData" => ""
-      }
-    )
+    send_command("SetAVTransportURI", "CurrentURI" => uri)
   end
 
 private
