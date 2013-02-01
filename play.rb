@@ -52,7 +52,12 @@ class TV
         "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Stop"',
         "Content-type" => "text/xml"
       },
-      '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Stop xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID></u:Stop></s:Body></s:Envelope>'
+      soap_body(
+        "Stop",
+        {
+          "InstanceID" => "0"
+        }
+      )
     )
   end
 
@@ -63,7 +68,13 @@ class TV
         "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#Play"',
         "Content-type" => "text/xml"
       },
-      '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:Play xmlns:u="urn:schemas-upnp-org:service:AVTransport:1"><InstanceID>0</InstanceID><Speed>1</Speed></u:Play></s:Body></s:Envelope>'
+      soap_body(
+        "Play",
+        {
+          "InstanceID" => "0",
+          "Speed" => "1"
+        }
+      )
     )
   end
 
@@ -74,7 +85,14 @@ class TV
         "SOAPACTION" => '"urn:schemas-upnp-org:service:AVTransport:1#SetAVTransportURI"',
         "Content-type" => "text/xml"
       },
-      %Q{<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">  <s:Body>    <u:SetAVTransportURI xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">      <InstanceID>0</InstanceID>      <CurrentURI>#{uri}</CurrentURI>      <CurrentURIMetaData></CurrentURIMetaData>    </u:SetAVTransportURI>  </s:Body></s:Envelope>}
+      soap_body(
+        "SetAVTransportURI",
+        {
+          "InstanceID" => "0",
+          "CurrentURI" => uri,
+          "CurrentURIMetaData" => ""
+        }
+      )
     )
   end
 
@@ -89,6 +107,19 @@ private
     args << "'#{data}'"
     args << url
     system("curl " + args.join(" "))
+  end
+
+  def soap_body(command, args)
+    xml_args = args.map{ |key, value| "<#{key}>#{value}</#{key}>" }.join
+    %Q{<?xml version="1.0"?>
+      <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+        s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+        <s:Body>
+          <u:#{command} xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">
+            #{xml_args}
+          </u:#{command}>
+        </s:Body>
+      </s:Envelope>}
   end
 end
 
