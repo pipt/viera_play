@@ -6,7 +6,7 @@ require "net/http"
 require "uri"
 
 class SingleFileServer
-  def initialize(file_path, additional_mime_types)
+  def initialize(file_path, additional_mime_types={})
     @file_path = file_path
     @additional_mime_types = FORMATS.merge(additional_mime_types)
   end
