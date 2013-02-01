@@ -5,10 +5,6 @@ require "socket"
 require "net/http"
 require "uri"
 
-TV_CONTROL_URL = "http://192.168.0.16:55000/dmr/control_2"
-
-file_path = ARGV.first
-
 class SingleFileServer
   def initialize(file_path, additional_mime_types)
     @file_path = file_path
@@ -143,19 +139,33 @@ private
   end
 end
 
-tv = TV.new(TV_CONTROL_URL)
+class Player
+  def initialize(opts)
+    @tv = TV.new(opts.fetch(:tv_control_url))
+    @file_path = opts.fetch(:file_path)
+    @server = SingleFileServer.new(file_path, opts.fetch(:additional_mime_types, {}))
+  end
 
-server = SingleFileServer.new(ARGV.first, FORMATS)
+  def call
+    trap 'INT' do
+      tv.stop
+      server.shutdown
+    end
 
-trap 'INT' do
-  tv.stop
-  server.shutdown
+    http_server_thread = Thread.new do
+      server.start
+    end
+
+    tv.play_uri(server.url)
+
+    http_server_thread.join
+  end
+
+private
+  attr_reader :tv, :file_path, :server
 end
 
-http_server_thread = Thread.new do
-  server.start
-end
-
-tv.play_uri(server.url)
-
-http_server_thread.join
+Player.new(
+  :tv_control_url => "http://192.168.0.16:55000/dmr/control_2",
+  :file_path => ARGV.first
+).call
