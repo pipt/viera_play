@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require "viera_play"
+
+VieraPlay::Player.new(
+  :tv_control_url => ENV["TV_CONTROL_URL"],
+  :file_path => ARGV.first
+).call
