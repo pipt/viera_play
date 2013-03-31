@@ -1,0 +1,16 @@
+PATH
+  remote: .
+  specs:
+    viera_play (1.0)
+      nokogiri
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    nokogiri (1.5.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  viera_play!
