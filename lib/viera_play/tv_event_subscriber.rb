@@ -8,7 +8,7 @@ module VieraPlay
       @server = WEBrick::HTTPServer.new(:Port => 1234)
       Thread.new { @server.start }
       @server.mount("/notify", NotifyServlet)
-      sleep 5
+      sleep 1
       http = Net::HTTP.new("192.168.0.16", "55000")
       request = SubscribeVerb.new("/dmr/event_2")
       request["CALLBACK"] = "<http://#{local_ip}:1234/notify>"
