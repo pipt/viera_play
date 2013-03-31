@@ -28,6 +28,8 @@ end
 
 class NotifyServlet < WEBrick::HTTPServlet::AbstractServlet
   def do_NOTIFY(request, response)
-    puts request.body
+    doc = Nokogiri::XML(request.body)
+    last_change = Nokogiri::XML(doc.css('LastChange').first.content)
+    puts doc.css('LastChange').first.content
   end
 end
