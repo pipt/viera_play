@@ -17,4 +17,6 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
   gem.executables << "viera_play"
+
+  gem.add_dependency("nokogiri")
 end
