@@ -1,3 +1,5 @@
+require "nokogiri"
+
 module VieraPlay
   class TV
     def initialize(control_url)
@@ -18,6 +20,11 @@ module VieraPlay
 
     def play
       send_command("Play", "Speed" => "1")
+    end
+
+    def position_string
+      doc = Nokogiri::XML(send_command("GetPositionInfo"))
+      doc.css("AbsTime").first.content
     end
 
     def play_uri(uri)
