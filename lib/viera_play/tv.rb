@@ -12,6 +12,10 @@ module VieraPlay
       send_command("Stop")
     end
 
+    def pause
+      send_command("Pause")
+    end
+
     def play
       send_command("Play", "Speed" => "1")
     end
