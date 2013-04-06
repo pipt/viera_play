@@ -23,7 +23,12 @@ module VieraPlay
     attr_reader :endpoint, :namespace, :default_request_args
 
     def post(headers, data)
-      Net::HTTP.new(endpoint.host, endpoint.port).post(endpoint.path, data, headers)
+      response = Net::HTTP.new(endpoint.host, endpoint.port).post(endpoint.path, data, headers)
+      if response.code == "200"
+        response
+      else
+        raise "Server error: #{response.code} #{response.body}"
+      end
     end
 
     def soap_body(command, args)
