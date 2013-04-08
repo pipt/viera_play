@@ -30,7 +30,11 @@ module VieraPlay
     attr_reader :soap_client
 
     def set_media_uri(uri)
-      send_command("SetAVTransportURI", "CurrentURI" => uri)
+      send_command(
+        "SetAVTransportURI",
+        "CurrentURI" => uri,
+        "CurrentURIMetaData" => ""
+      )
     end
 
     def send_command(command, args={})
