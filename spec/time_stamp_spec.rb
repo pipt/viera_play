@@ -40,4 +40,10 @@ describe TimeStamp do
       TimeStamp.new(-100).to_i.should == -100
     end
   end
+
+  describe "#+" do
+    it "adds another integer" do
+      (TimeStamp.new(-100) + TimeStamp.new(20)).to_i.should == -80
+    end
+  end
 end

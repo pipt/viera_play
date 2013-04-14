@@ -26,4 +26,8 @@ class TimeStamp
   def to_i
     @val
   end
+
+  def + other
+    to_i + other.to_i
+  end
 end
