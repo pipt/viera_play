@@ -1,3 +1,5 @@
+require "nokogiri"
+require "viera_play/time_stamp"
 module VieraPlay
   class TV
     def initialize(control_url)
@@ -20,13 +22,57 @@ module VieraPlay
       send_command("Play", "Speed" => "1")
     end
 
+    def seek_by(ammount)
+      info = get_position_info
+      seek_to(info.position + ammount)
+    end
+
+    def seek_to(position)
+      target = TimeStamp.new(position)
+      send_command(
+        "Seek",
+        "Unit" => 'REL_TIME',
+        "Target" => target
+      )
+    end
+
     def play_uri(uri)
       stop
       set_media_uri(uri)
       play
     end
 
-    private
+    class PositionInfo
+      def initialize(xml)
+        @doc = Nokogiri::XML(xml)
+      end
+
+      def position
+        TimeStamp.parse @doc.css('RelTime').first.content
+      end
+
+      def duration
+        TimeStamp.parse @doc.css('TrackDuration').first.content
+      end
+
+      def track
+        sub_doc = @doc.css('TrackMetaData').first.content
+        parsed_subdoc = Nokogiri::XML(sub_doc)
+        parsed_subdoc.xpath(
+          '//dc:title',
+          'dc' => 'http://purl.org/dc/elements/1.1/'
+        ).first.content
+      end
+    end
+
+    # Gets playback status information from the host. Returns a PositionInfo
+    # instance.
+    def get_position_info
+      response = send_command("GetPositionInfo")
+      PositionInfo.new response.body
+    end
+
+  private
     attr_reader :soap_client
 
     def set_media_uri(uri)
