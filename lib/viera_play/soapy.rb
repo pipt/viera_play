@@ -10,13 +10,12 @@ module VieraPlay
     end
 
     def send_command(command, args={})
-      post(
-        {
-          "SOAPACTION" => %Q{"#{namespace}##{command}"},
-          "Content-type" => "text/xml"
-        },
-        soap_body(command, default_request_args.merge(args))
-      )
+      body = soap_body(command, default_request_args.merge(args))
+      headers = {
+        "SOAPACTION" => %Q{"#{namespace}##{command}"},
+        "Content-type" => "text/xml"
+      }
+      post(headers, body)
     end
 
     private
