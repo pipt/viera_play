@@ -42,7 +42,9 @@ module VieraPlay
       @server ||= WEBrick::HTTPServer.new(
         :Port => port,
         :MimeTypes => mime_types,
-        :DocumentRoot => file_path
+        :DocumentRoot => file_path,
+        :AccessLog => [],
+        :Logger => WEBrick::Log::new("/dev/null", 7)
       )
     end
 
