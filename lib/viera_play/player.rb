@@ -1,4 +1,5 @@
 require "curses"
+require "streamio-ffmpeg"
 
 module VieraPlay
   class Player
@@ -21,6 +22,10 @@ module VieraPlay
       super
     end
 
+    def video_duration
+      @video_duration ||= TimeStamp.new(FFMPEG::Movie.new(file_path).duration.ceil)
+    end
+
     def trap_interrupt
       trap 'INT' do
         trap 'INT', 'DEFAULT'
@@ -36,12 +41,12 @@ module VieraPlay
       win.clear
       win.box('|', '-', '+')
       win.setpos(1,1)
-      win << '#' * (@width * info.position.to_i/(info.duration.to_i + 0.0001))
+      win << '#' * (@width * info.position.to_i/(video_duration.to_i + 0.0001))
       win.setpos(2,1)
-      win.addstr("%s of %s - %20s" % [info.position, info.duration, info.track])
+      win.addstr("%s of %s - %20s" % [info.position, video_duration, info.track])
       win.refresh
 
-      exit if info.duration.to_i.zero?
+      exit if video_duration.to_i.zero?
     end
 
     def play_and_wait
@@ -68,7 +73,7 @@ module VieraPlay
           exit
         when Curses::KEY_MOUSE
           if m = Curses.getmouse
-            v = (m.x - 2).to_f / (@width) * tv.get_position_info.duration.to_i
+            v = (m.x - 2).to_f / (@width) * video_duration.to_i
             tv.seek_to(v)
           end
         when nil
