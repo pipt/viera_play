@@ -17,4 +17,9 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
   gem.executables << "viera_play"
+
+  gem.add_runtime_dependency("nokogiri")
+  gem.add_runtime_dependency("streamio-ffmpeg")
+
+  gem.add_development_dependency("rspec")
 end
