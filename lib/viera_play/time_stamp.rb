@@ -1,6 +1,6 @@
 class TimeStamp
   def self.parse(string)
-    if /\A(-?)([0-9]{2}):([0-9]{2}):([0-9]{2})\Z/.match(string)
+    if /\A(-?)([0-9]{1,2}):([0-9]{2}):([0-9]{2})\Z/.match(string)
       negative, parts = $1, [$2, $3, $4]
       parts = parts.map(&:to_i)
       val = parts[0] * 60**2 + parts[1] * 60 + parts[2]
