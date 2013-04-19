@@ -19,6 +19,13 @@ describe TimeStamp do
       TimeStamp.parse('-00:01:01').to_i.should eq(-61)
       TimeStamp.parse('-01:01:01').to_i.should eq(-3_661)
     end
+
+    it "parses timestamps with a single hour digit" do
+      TimeStamp.parse('0:00:00').to_i.should eq 0
+      TimeStamp.parse('0:00:01').to_i.should eq 1
+      TimeStamp.parse('0:01:01').to_i.should eq 61
+      TimeStamp.parse('1:01:01').to_i.should eq 3_661
+    end
   end
 
   describe "#to_s" do
