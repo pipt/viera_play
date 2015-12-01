@@ -24,7 +24,8 @@ module VieraPlay
     attr_reader :file_path, :additional_mime_types
 
     FORMATS = {
-      ["mkv", "mp4", "wmv", "avi", "mov"] => "video/x-msvideo",
+      ["mkv"] => "video/x-matroska",
+      ["mp4", "wmv", "avi", "mov"] => "video/x-msvideo",
       ["mp3"] => "audio/mpeg"
     }
 
