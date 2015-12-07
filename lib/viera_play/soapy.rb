@@ -4,7 +4,7 @@ require "uri"
 module VieraPlay
   class Soapy
     def initialize(opts={})
-      @endpoint = URI.parse(opts.fetch(:endpoint))
+      @endpoint = URI(opts.fetch(:endpoint))
       @namespace = opts.fetch(:namespace)
       @default_request_args = opts.fetch(:default_request_args, {})
     end

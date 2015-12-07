@@ -1,9 +1,10 @@
 module VieraPlay
   class Player
     def initialize(opts)
-      @tv = TV.new(opts.fetch(:tv_control_url))
+      uri = URI(opts.fetch(:tv_control_url))
+      @tv = TV.new(uri)
       @file_path = opts.fetch(:file_path)
-      @server = SingleFileServer.new(file_path, opts.fetch(:additional_mime_types, {}))
+      @server = SingleFileServer.new(file_path, opts.fetch(:additional_mime_types, {}), uri.host)
     end
 
     def call
