@@ -3,9 +3,10 @@ require "socket"
 
 module VieraPlay
   class SingleFileServer
-    def initialize(file_path, additional_mime_types={})
+    def initialize(file_path, additional_mime_types={}, source_ip = '8.8.8.8')
       @file_path = file_path
       @additional_mime_types = FORMATS.merge(additional_mime_types)
+      @source_ip = source_ip
     end
 
     def start
@@ -21,7 +22,7 @@ module VieraPlay
     end
 
     private
-    attr_reader :file_path, :additional_mime_types
+    attr_reader :file_path, :additional_mime_types, :source_ip
 
     FORMATS = {
       ["mkv"] => "video/x-matroska",
@@ -53,7 +54,7 @@ module VieraPlay
 
     def local_ip
       @local_ip ||= UDPSocket.open do |s|
-        s.connect '8.8.8.8', 1
+        s.connect source_ip, 1
         s.addr.last
       end
     end
