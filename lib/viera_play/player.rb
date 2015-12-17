@@ -24,6 +24,7 @@ module VieraPlay
 
     def play_and_wait
       http_server_thread = Thread.new { server.start }
+      server.wait_for_ready
       tv.play_uri(server.url)
       http_server_thread.join
     end
