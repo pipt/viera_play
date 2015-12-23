@@ -21,7 +21,20 @@ module VieraPlay
       "http://#{local_ip}:#{port}/"
     end
 
-    private
+    def listening?
+      TCPSocket.new(local_ip, port).close
+      true
+    rescue Errno::ECONNREFUSED
+      false
+    end
+
+    def wait_for_ready
+      Timeout.timeout(5) do
+        sleep 0.01 until listening?
+      end
+    end
+
+  private
     attr_reader :file_path, :additional_mime_types, :source_ip
 
     FORMATS = {
